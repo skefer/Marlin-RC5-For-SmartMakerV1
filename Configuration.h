@@ -362,7 +362,7 @@
   #define DELTA_DIAGONAL_ROD 269.0 // mm
 
   // Horizontal offset from middle of printer to smooth rod center.
-  #define DELTA_SMOOTH_ROD_OFFSET 166.40 // mm
+  #define DELTA_SMOOTH_ROD_OFFSET 166.20 // mm
 
   // Horizontal offset of the universal joints on the end effector.
   #define DELTA_EFFECTOR_OFFSET 35.0 // mm
@@ -766,7 +766,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the lo
 #if ENABLED(MANUAL_HOME_POSITIONS)
   #define MANUAL_X_HOME_POS 0
   #define MANUAL_Y_HOME_POS 0
-  #define MANUAL_Z_HOME_POS 304 // For delta: Distance between nozzle and print surface after homing.
+  #define MANUAL_Z_HOME_POS 305 // For delta: Distance between nozzle and print surface after homing.
 #endif
 
 // @section movement
@@ -934,7 +934,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the lo
 // See http://minow.blogspot.com/index.html#4918805519571907051
 // If needed, adjust the X, Y, Z calibration coordinates
 // in ultralcd.cpp@lcd_delta_calibrate_menu()
-//#define DELTA_CALIBRATION_MENU
+#define DELTA_CALIBRATION_MENU
 
 /**
  * I2C Panels

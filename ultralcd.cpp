@@ -842,22 +842,6 @@ static void lcd_prepare_menu() {
   MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
 
   //
-  // Set Home Offsets
-  //
-  MENU_ITEM(function, MSG_SET_HOME_OFFSETS, lcd_set_home_offsets);
-  //MENU_ITEM(gcode, MSG_SET_ORIGIN, PSTR("G92 X0 Y0 Z0"));
-
-  //
-  // Level Bed
-  //
-  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-    if (axis_known_position[X_AXIS] && axis_known_position[Y_AXIS])
-      MENU_ITEM(gcode, MSG_LEVEL_BED, PSTR("G29"));
-  #elif ENABLED(MANUAL_BED_LEVELING)
-    MENU_ITEM(submenu, MSG_LEVEL_BED, lcd_level_bed);
-  #endif
-
-  //
   // Move Axis
   //
   MENU_ITEM(submenu, MSG_MOVE_AXIS, lcd_move_menu);
@@ -906,21 +890,6 @@ static void lcd_prepare_menu() {
   END_MENU();
 }
 
-#if ENABLED(DELTA_CALIBRATION_MENU)
-
-  static void lcd_delta_calibrate_menu() {
-    START_MENU();
-    MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
-    MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
-    MENU_ITEM(gcode, MSG_DELTA_CALIBRATE_X, PSTR("G0 F8000 X-77.94 Y-45 Z0"));
-    MENU_ITEM(gcode, MSG_DELTA_CALIBRATE_Y, PSTR("G0 F8000 X77.94 Y-45 Z0"));
-    MENU_ITEM(gcode, MSG_DELTA_CALIBRATE_Z, PSTR("G0 F8000 X0 Y90 Z0"));
-    MENU_ITEM(gcode, MSG_DELTA_CALIBRATE_CENTER, PSTR("G0 F8000 X0 Y0 Z0"));
-    END_MENU();
-  }
-
-#endif // DELTA_CALIBRATION_MENU
-
 inline void line_to_current(AxisEnum axis) {
   #if ENABLED(DELTA)
     calculate_delta(current_position);
@@ -950,7 +919,7 @@ static void _lcd_move(const char* name, AxisEnum axis, int min, int max) {
     line_to_current(axis);
     lcdDrawUpdate = 1;
   }
-  if (lcdDrawUpdate) lcd_implementation_drawedit(name, ftostr31(current_position[axis]));
+  if (lcdDrawUpdate) lcd_implementation_drawedit(name, ftostr52(current_position[axis]));
   if (LCD_CLICKED) lcd_goto_previous_menu();
 }
 #if ENABLED(DELTA)
@@ -1072,6 +1041,73 @@ static void lcd_move_menu() {
   END_MENU();
 }
 
+static void _lcd_auto_leving() {
+  enqueue_and_echo_commands_P(PSTR("G28"));
+  enqueue_and_echo_commands_P(PSTR("G29"));
+  enqueue_and_echo_commands_P(PSTR("G1 X0 Y0 Z0 F3000"));
+}
+
+float z_probe_calc_val = 0;
+static void _lcd_move_zprobe() {
+
+  ENCODER_DIRECTION_NORMAL();
+  if ((encoderPosition != 0) && (movesplanned() <= 3)) {
+    refresh_cmd_timeout();
+    z_probe_calc_val += float((int)encoderPosition) * 0.01;
+
+    char cmd[30];
+    sprintf_P(cmd, PSTR("G1 Z%s"), ftostr32(z_probe_calc_val));
+    enqueue_and_echo_command(cmd);
+    encoderPosition = 0;
+    lcdDrawUpdate = 1;
+  }
+  if (lcdDrawUpdate) lcd_implementation_drawedit(PSTR("ZPOFFSET"), ftostr32(zprobe_zoffset+z_probe_calc_val));
+  if (LCD_CLICKED) {
+    zprobe_zoffset += z_probe_calc_val;
+    Config_StoreSettings();
+    lcd_goto_previous_menu();
+  }
+}
+
+
+#if ENABLED(DELTA_CALIBRATION_MENU)
+
+  static void lcd_delta_calibrate_menu() {
+    START_MENU();
+    MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
+    MENU_ITEM(gcode, MSG_AUTO_HOME, PSTR("G28"));
+
+    //
+    // Level Bed
+    //
+    #if ENABLED(AUTO_BED_LEVELING_FEATURE)
+      MENU_ITEM(submenu, MSG_ZPROBE_ZOFFSET, _lcd_move_zprobe);
+
+      //MENU_ITEM_EDIT(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
+      //if (axis_known_position[X_AXIS] && axis_known_position[Y_AXIS])
+      MENU_ITEM(function, MSG_LEVEL_BED, _lcd_auto_leving);
+    #elif ENABLED(MANUAL_BED_LEVELING)
+      MENU_ITEM(submenu, MSG_LEVEL_BED, lcd_level_bed);
+    #endif
+
+    move_menu_scale = 0.01;
+    MENU_ITEM(submenu, MSG_MOVE_Z, lcd_move_z);
+    //
+    // Set Home Offsets
+    //
+    MENU_ITEM(function, MSG_SET_HOME_OFFSETS, lcd_set_home_offsets);
+    //MENU_ITEM(gcode, MSG_SET_ORIGIN, PSTR("G92 X0 Y0 Z0"));
+    MENU_ITEM(gcode, MSG_DELTA_CALIBRATE_X, PSTR("G0 F8000 X-77.94 Y-45 Z0"));
+    MENU_ITEM(gcode, MSG_DELTA_CALIBRATE_Y, PSTR("G0 F8000 X77.94 Y-45 Z0"));
+    MENU_ITEM(gcode, MSG_DELTA_CALIBRATE_Z, PSTR("G0 F8000 X0 Y90 Z0"));
+    MENU_ITEM(gcode, MSG_DELTA_CALIBRATE_CENTER, PSTR("G0 F8000 X0 Y0 Z0"));
+    END_MENU();
+  }
+
+#endif // DELTA_CALIBRATION_MENU
+
+
+
 /**
  *
  * "Control" submenu
@@ -1083,7 +1119,7 @@ static void lcd_control_menu() {
   MENU_ITEM(back, MSG_MAIN, lcd_main_menu);
   MENU_ITEM(submenu, MSG_TEMPERATURE, lcd_control_temperature_menu);
   MENU_ITEM(submenu, MSG_MOTION, lcd_control_motion_menu);
-  MENU_ITEM(submenu, MSG_VOLUMETRIC, lcd_control_volumetric_menu);
+  //MENU_ITEM(submenu, MSG_VOLUMETRIC, lcd_control_volumetric_menu);
 
   #if ENABLED(HAS_LCD_CONTRAST)
     //MENU_ITEM_EDIT(int3, MSG_CONTRAST, &lcd_contrast, 0, 63);
@@ -1358,9 +1394,6 @@ static void lcd_control_temperature_preheat_abs_settings_menu() {
 static void lcd_control_motion_menu() {
   START_MENU();
   MENU_ITEM(back, MSG_CONTROL, lcd_control_menu);
-  #if ENABLED(AUTO_BED_LEVELING_FEATURE)
-    MENU_ITEM_EDIT(float32, MSG_ZPROBE_ZOFFSET, &zprobe_zoffset, Z_PROBE_OFFSET_RANGE_MIN, Z_PROBE_OFFSET_RANGE_MAX);
-  #endif
   // Manual bed leveling, Bed Z:
   #if ENABLED(MANUAL_BED_LEVELING)
     MENU_ITEM_EDIT(float43, MSG_BED_Z, &mbl.z_offset, -1, 1);

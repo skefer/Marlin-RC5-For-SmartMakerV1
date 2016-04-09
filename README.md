@@ -79,4 +79,5 @@ While we can't prevent the use of this code in products (3D printers, CNC, etc.)
 =======
 # Marlin-RC5-For-SmartMakerV1
 This code based on Marlin Firmware RC5 and modified for my 3d printer 
->>>>>>> 05d07d7d8af50315a2da161f23603b7b7be769a6
+The 3d printer can be bought in taobao,link:https://item.taobao.com/item.htm?id=521200007106
+

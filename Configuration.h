@@ -242,9 +242,14 @@
 
 
   // J-Head with 12v 40W heater cartridge
-  #define  DEFAULT_Kp 15.34
-  #define  DEFAULT_Ki 1.57
-  #define  DEFAULT_Kd 37.45
+  //#define  DEFAULT_Kp 15.34
+  //#define  DEFAULT_Ki 1.57
+  //#define  DEFAULT_Kd 37.45
+
+  //auto pid
+  #define  DEFAULT_Kp 17.56
+  #define  DEFAULT_Ki 1.1
+  #define  DEFAULT_Kd 70.33
 
   // If you are using a pre-configured hotend then you can use one of the value sets by uncommenting it
   // Ultimaker
@@ -360,12 +365,12 @@
   // Make delta curves from many straight lines (linear interpolation).
   // This is a trade-off between visible corners (not enough segments)
   // and processor overload (too many expensive sqrt calls).
-  #define DELTA_SEGMENTS_PER_SECOND 150
+  #define DELTA_SEGMENTS_PER_SECOND 120
 
   // NOTE NB all values for DELTA_* values MUST be floating point, so always have a decimal point in them
 
   // Center-to-center distance of the holes in the diagonal push rods.
-  #define DELTA_DIAGONAL_ROD 269.0 // mm
+  #define DELTA_DIAGONAL_ROD 269.2 // mm
 
   // Horizontal offset from middle of printer to smooth rod center.
   #define DELTA_SMOOTH_ROD_OFFSET 166.20 // mm
@@ -782,7 +787,7 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the lo
  */
 
 // delta homing speeds must be the same on xyz
-#define HOMING_FEEDRATE_XYZ (110*60)
+#define HOMING_FEEDRATE_XYZ (100*60)
 #define HOMING_FEEDRATE_E 0
 #define HOMING_FEEDRATE { HOMING_FEEDRATE_XYZ, HOMING_FEEDRATE_XYZ, HOMING_FEEDRATE_XYZ, HOMING_FEEDRATE_E }
 
@@ -792,9 +797,9 @@ const bool Z_MIN_PROBE_ENDSTOP_INVERTING = true; // set to true to invert the lo
 #define DEFAULT_MAX_FEEDRATE          {500, 500, 500, 25}    // (mm/sec)
 #define DEFAULT_MAX_ACCELERATION      {9000,9000,9000,9000}    // X, Y, Z, E maximum start speed for accelerated moves. E default values are good for Skeinforge 40+, for older versions raise them a lot.
 
-#define DEFAULT_ACCELERATION          3000    // X, Y, Z and E acceleration in mm/s^2 for printing moves
-#define DEFAULT_RETRACT_ACCELERATION  3000    // E acceleration in mm/s^2 for retracts
-#define DEFAULT_TRAVEL_ACCELERATION   3000    // X, Y, Z acceleration in mm/s^2 for travel (non printing) moves
+#define DEFAULT_ACCELERATION          2000    // X, Y, Z and E acceleration in mm/s^2 for printing moves
+#define DEFAULT_RETRACT_ACCELERATION  2000    // E acceleration in mm/s^2 for retracts
+#define DEFAULT_TRAVEL_ACCELERATION   2000    // X, Y, Z acceleration in mm/s^2 for travel (non printing) moves
 
 // The speed change that does not require acceleration (i.e. the software might assume it can be done instantaneously)
 #define DEFAULT_XYJERK                20.0    // (mm/sec)
